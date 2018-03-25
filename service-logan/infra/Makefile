@@ -5,6 +5,7 @@ FUNCTION=infrastructure
 include $(MY_DIR)/../project-variables.mk
 
 TERRAFORM_VARS=\
+	-var "region=$(REGION)" \
 	-var "estate_id=$(ESTATE_ID)" \
 	-var "deployment_id=$(DEPLOYMENT_ID)" \
 	-var "component=$(COMPONENT)" \

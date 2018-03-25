@@ -6,7 +6,12 @@ FUNCTION=pipeline
 DEPLOYMENT_ID=delivery
 include $(MY_DIR)/../project-variables.mk
 
-TERRAFORM_VARS=-var repo_bucket_name=$(ARTEFACT_BUCKET_NAME)
+TERRAFORM_VARS=\
+	-var "region=$(REGION)" \
+	-var "repo_bucket_name=$(ARTEFACT_BUCKET_NAME)" \
+	-var "estate_id=$(ESTATE_ID)" \
+	-var "component=$(COMPONENT)" \
+	-var "role=$(ROLE)"
 
 init:
 	cd ./src && terraform init -input=false -upgrade=true -force-copy \

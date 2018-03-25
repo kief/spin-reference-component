@@ -7,6 +7,7 @@ DEPLOYMENT_ID=delivery
 include $(MY_DIR)/../project-variables.mk
 
 TERRAFORM_VARS=\
+	-var "region=$(REGION)" \
 	-var "git_ssh_keyfile=$(HOME)/.ssh/git_ssh.pub" \
 	-var "estate_id=$(ESTATE_ID)" \
 	-var "component=$(COMPONENT)" \
