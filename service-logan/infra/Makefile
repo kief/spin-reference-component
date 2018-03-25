@@ -33,7 +33,7 @@ init: $(BASTION_KEYPAIR_FILE) $(WEBSERVER_KEYPAIR_FILE)
 	rm -f ./src/.terraform/*tfstate*
 	cd ./src && $(TERRAFORM) init -input=false -upgrade=$(UPGRADE_MODULES) -force-copy \
 		-backend-config="bucket=$(STATE_BUCKET_NAME)" \
-		-backend-config="key=$(TF_STATE_PATH)" \
+		-backend-config="key=$(STATE_PATH)" \
 		-backend-config="region=$(REGION)"
 
 $(BASTION_KEYPAIR_FILE):
@@ -74,7 +74,7 @@ up: init ## Create or update the stack
 test: awspec inspec ## Test the stack
 
 awspec: awspec-init
-	cd ./test/awspec && DEPLOYMENT_ID=$(DEPLOYMENT_ID) bundle exec rspec spec/*_spec.rb
+	cd ./test/awspec && DEPLOYMENT_ID=$(DEPLOYMENT_ID) ROLE=$(ROLE) bundle exec rspec spec/*_spec.rb
 
 awspec-init:
 	cd ./test/awspec && bundle install

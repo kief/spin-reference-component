@@ -2,6 +2,8 @@
 .PHONY: test
 
 MY_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+FUNCTION=code-repository
+DEPLOYMENT_ID=delivery
 include $(MY_DIR)/../project-variables.mk
 
 TERRAFORM_VARS=\
@@ -18,7 +20,7 @@ SSH_CONFIGURED_FOR_CODECOMMIT=$(HOME)/.ssh/ssh_configured_for_codecommit_$(ESTAT
 init: $(HOME)/.ssh/git_ssh.pub
 	cd ./src && terraform init -input=false -upgrade=true -force-copy \
 		-backend-config="bucket=$(STATE_BUCKET_NAME)" \
-		-backend-config="key=estate-$(ESTATE_ID)/component-$(COMPONENT)/code-repository/infra.tfstate" \
+		-backend-config="key=$(STATE_PATH)" \
 		-backend-config="region=$(REGION)"
 
 plan: init ## Preview changes without applying them

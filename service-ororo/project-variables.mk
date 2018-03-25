@@ -12,6 +12,7 @@ MY_IP=$(shell curl -s icanhazip.com)
 
 AWS_ACCOUNT_ID:=$(shell aws sts get-caller-identity --output text --query Account)
 STATE_BUCKET_NAME=spin-reference-$(AWS_ACCOUNT_ID)
+STATE_PATH="estate-$(ESTATE_ID)/component-$(COMPONENT)/role-$(ROLE)/$(DEPLOYMENT_ID)/$(FUNCTION).tfstate"
 ARTEFACT_BUCKET_NAME=spin-artefacts-$(AWS_ACCOUNT_ID)
 
 ARTEFACT_NAME=$(COMPONENT)-$(ROLE)

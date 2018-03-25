@@ -1,6 +1,7 @@
 .DEFAULT_GOAL := help
 
 MY_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+FUNCTION=infrastructure
 include $(MY_DIR)/../project-variables.mk
 
 TERRAFORM_VARS=\
@@ -32,7 +33,7 @@ init: $(BASTION_KEYPAIR_FILE) $(WEBSERVER_KEYPAIR_FILE)
 	rm -f ./src/.terraform/*tfstate*
 	cd ./src && $(TERRAFORM) init -input=false -upgrade=$(UPGRADE_MODULES) -force-copy \
 		-backend-config="bucket=$(STATE_BUCKET_NAME)" \
-		-backend-config="key=estate-$(ESTATE_ID)/component-$(COMPONENT)/deployment-$(DEPLOYMENT_ID)/$(ROLE).tfstate" \
+		-backend-config="key=$(STATE_PATH)" \
 		-backend-config="region=$(REGION)"
 
 $(BASTION_KEYPAIR_FILE):
@@ -73,7 +74,6 @@ up: init ## Create or update the stack
 test: awspec inspec ## Test the stack
 
 awspec: awspec-init
-	# cd ./test/awspec && DEPLOYMENT_ID=$(DEPLOYMENT_ID) ROLE=$(ROLE) echo "$$ROLE"
 	cd ./test/awspec && DEPLOYMENT_ID=$(DEPLOYMENT_ID) ROLE=$(ROLE) bundle exec rspec spec/*_spec.rb
 
 awspec-init:
