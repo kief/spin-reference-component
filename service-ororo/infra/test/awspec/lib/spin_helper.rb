@@ -6,6 +6,6 @@ end
 
 
 def role
-  ROLE['ROLE']
+  ENV['ROLE']
 end
 
