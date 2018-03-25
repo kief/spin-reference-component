@@ -18,6 +18,6 @@ ARTEFACT_BUCKET_NAME=$(shell echo artefacts-$(ESTATE_ID)-$(COMPONENT)-$(ROLE)-$(
 ARTEFACT_NAME=$(COMPONENT)-$(ROLE)
 BUILD_VERSION=1.0.$(shell date +%Y%m%d%I%M%S)
 
-BASTION_KEYPAIR_FILE=.work/bastion-keypair-$(DEPLOYMENT_ID)
-WEBSERVER_KEYPAIR_FILE=.work/webserver-keypair-$(DEPLOYMENT_ID)
+BASTION_KEYPAIR_FILE=.work/bastion-keypair-$(COMPONENT)-$(ROLE)-$(DEPLOYMENT_ID)
+WEBSERVER_KEYPAIR_FILE=.work/webserver-keypair-$(COMPONENT)-$(ROLE)-$(DEPLOYMENT_ID)
 
