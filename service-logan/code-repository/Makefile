@@ -46,19 +46,27 @@ $(SSH_CONFIGURED_FOR_CODECOMMIT): init
 	@echo "" >> $(HOME)/.ssh/config
 	touch $(SSH_CONFIGURED_FOR_CODECOMMIT)
 
-import: git-client ./build/.git/config ## Import source code into CodeCommit
+new-repo: git-client copy-source ./build/.git/config ## Import source code into CodeCommit for the first time
 
-copy-source:
-	rm -rf ./build
+./build/.git/config:
 	mkdir -p ./build
-	( cd ../ && tar --exclude=code-repository -cf - . ) | ( cd ./build && tar xf - )
-
-./build/.git/config: copy-source
 	cd ./build && git init
 	cd ./build && git add .
 	cd ./build && git commit -m "Importing source"
 	cd ./build && git remote add origin $(GIT_CLONE_URL)
 	cd ./build && git push -u origin master
+
+copy-source:
+	mkdir -p ./build
+	( cd ../ && tar --exclude=code-repository -cf - . ) | ( cd ./build && tar xf - )
+
+fresh-repo: git-client ## Wipe local build and clone whatever is in CodeCommit
+	rm -rf ./build
+	git clone $(GIT_CLONE_URL) build
+
+push-fresh: fresh-repo copy-source ## Push local source into CodeCommit
+	cd ./build && git commit -am "Ran make to bring in changes"
+	cd ./build && git push
 
 test: clean-test ## Test the infrastructure
 	cd ./test && ./check_git_repo.sh $(GIT_CLONE_URL)

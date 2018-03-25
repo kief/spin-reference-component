@@ -26,7 +26,7 @@ apply: init ## Create or update infrastructure
 	cd ./src && terraform apply -auto-approve $(TERRAFORM_VARS)
 
 test: ## Test the infrastructure
-	cd ./test && ./test-pipeline.sh
+	cd ./test && PIPELINE_NAME=$(ROLE)-$(COMPONENT)-$(ESTATE_ID)-pipeline ./test-pipeline.sh
 
 out:
 	cd ./src && terraform output $(TERRAFORM_VARS)
