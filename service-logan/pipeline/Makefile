@@ -2,6 +2,7 @@
 .PHONY: test init
 
 MY_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+FUNCTION=pipeline
 include $(MY_DIR)/../project-variables.mk
 
 TERRAFORM_VARS=-var repo_bucket_name=$(ARTEFACT_BUCKET_NAME)
@@ -9,7 +10,7 @@ TERRAFORM_VARS=-var repo_bucket_name=$(ARTEFACT_BUCKET_NAME)
 init:
 	cd ./src && terraform init -input=false -upgrade=true -force-copy \
 		-backend-config="bucket=$(STATE_BUCKET_NAME)" \
-		-backend-config="key=estate-$(ESTATE_ID)/component-$(COMPONENT)/pipeline/infra.tfstate" \
+		-backend-config="key=$(TF_STATE_PATH)" \
 		-backend-config="region=$(REGION)"
 
 plan: init ## Preview changes without applying them

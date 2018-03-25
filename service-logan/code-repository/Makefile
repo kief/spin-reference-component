@@ -2,9 +2,15 @@
 .PHONY: test
 
 MY_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+FUNCTION=code-repository
 include $(MY_DIR)/../project-variables.mk
 
-TERRAFORM_VARS=-var "git_ssh_keyfile=$(HOME)/.ssh/git_ssh.pub"
+TERRAFORM_VARS=\
+	-var "git_ssh_keyfile=$(HOME)/.ssh/git_ssh.pub" \
+	-var "estate_id=$(ESTATE_ID)" \
+	-var "component=$(COMPONENT)" \
+	-var "role=$(ROLE)"
+
 GIT_CLONE_URL="$(shell cd ./src && terraform output git_ssh_url)"
 GIT_USERNAME="$(shell cd ./src && terraform output committer_ssh_id)"
 SSH_CONFIGURED_FOR_CODECOMMIT=$(HOME)/.ssh/ssh_configured_for_codecommit_$(ESTATE_ID)_$(COMPONENT)
@@ -13,7 +19,7 @@ SSH_CONFIGURED_FOR_CODECOMMIT=$(HOME)/.ssh/ssh_configured_for_codecommit_$(ESTAT
 init: $(HOME)/.ssh/git_ssh.pub
 	cd ./src && terraform init -input=false -upgrade=true -force-copy \
 		-backend-config="bucket=$(STATE_BUCKET_NAME)" \
-		-backend-config="key=estate-$(ESTATE_ID)/component-$(COMPONENT)/code-repository/infra.tfstate" \
+		-backend-config="key=$(TF_STATE_PATH)" \
 		-backend-config="region=$(REGION)"
 
 plan: init ## Preview changes without applying them
