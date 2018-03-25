@@ -3,6 +3,7 @@
 
 MY_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 FUNCTION=pipeline
+DEPLOYMENT_ID=delivery
 include $(MY_DIR)/../project-variables.mk
 
 TERRAFORM_VARS=-var repo_bucket_name=$(ARTEFACT_BUCKET_NAME)

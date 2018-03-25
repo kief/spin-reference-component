@@ -20,4 +20,4 @@ BUILD_VERSION=1.0.$(shell date +%Y%m%d%I%M%S)
 BASTION_KEYPAIR_FILE=.work/bastion-keypair-$(DEPLOYMENT_ID)
 WEBSERVER_KEYPAIR_FILE=.work/webserver-keypair-$(DEPLOYMENT_ID)
 
-TF_STATE_PATH="estate-$(ESTATE_ID)/component-$(COMPONENT)/role-$(ROLE)/$(FUNCTION).tfstate" \
+TF_STATE_PATH="estate-$(ESTATE_ID)/component-$(COMPONENT)/role-$(ROLE)/$(DEPLOYMENT_ID)/$(FUNCTION).tfstate" \

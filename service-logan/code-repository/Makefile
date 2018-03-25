@@ -3,6 +3,7 @@
 
 MY_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 FUNCTION=code-repository
+DEPLOYMENT_ID=delivery
 include $(MY_DIR)/../project-variables.mk
 
 TERRAFORM_VARS=\
