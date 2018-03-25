@@ -24,10 +24,10 @@ init: $(HOME)/.ssh/git_ssh.pub
 		-backend-config="key=$(STATE_PATH)" \
 		-backend-config="region=$(REGION)"
 
-plan: init ## Preview changes without applying them
+plan: init ## Preview changes to the pipeline
 	cd ./src && terraform plan $(TERRAFORM_VARS)
 
-apply: init ## Create or update infrastructure
+apply: init ## Create or update the pipeline
 	cd ./src && terraform apply -auto-approve $(TERRAFORM_VARS)
 
 $(HOME)/.ssh/git_ssh.pub:
@@ -68,7 +68,7 @@ push-fresh: fresh-repo copy-source ## Push local source into CodeCommit
 	cd ./build && git commit -am "Ran make to bring in changes"
 	cd ./build && git push
 
-test: clean-test ## Test the infrastructure
+test: clean-test ## Test the pipeline
 	cd ./test && ./check_git_repo.sh $(GIT_CLONE_URL)
 
 clean-test:
@@ -77,7 +77,7 @@ clean-test:
 out:
 	cd ./src && terraform output
 
-destroy: run-destroy distclean ## Destroy the infrastructure
+destroy: run-destroy distclean ## Destroy the pipeline
 
 run-destroy: init
 	cd ./src && terraform destroy -force $(TERRAFORM_VARS)

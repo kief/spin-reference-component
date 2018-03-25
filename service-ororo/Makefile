@@ -8,8 +8,8 @@ setup-delivery: setup-code-repository new-repo setup-pipeline ## Setup each serv
 plan-delivery: plan-code-repository plan-pipeline ## See what's involved in setting up the delivery infrastructure
 
 destroy-delivery: ## Destroy the source repos and pipelines, but not infrastructure
-	cd pipeline && make destroy
-	cd code-repository && make destroy
+	-cd pipeline && make destroy
+	-cd code-repository && make destroy
 	rm -rf infra/.git
 	@echo "WARNING: Instances of the infrastructure could still exist"
 
@@ -43,7 +43,7 @@ test:
 	cd infra && make test
 
 destroy:
-	cd infra && make destroy
+	-cd infra && make destroy
 
 setup-code-repository:
 	cd code-repository && make apply
