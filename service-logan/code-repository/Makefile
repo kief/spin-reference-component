@@ -14,7 +14,7 @@ TERRAFORM_VARS=\
 
 GIT_CLONE_URL="$(shell cd ./src && terraform output git_ssh_url)"
 GIT_USERNAME="$(shell cd ./src && terraform output committer_ssh_id)"
-SSH_CONFIGURED_FOR_CODECOMMIT=$(HOME)/.ssh/ssh_configured_for_codecommit_$(ESTATE_ID)_$(COMPONENT)
+SSH_CONFIGURED_FOR_CODECOMMIT=$(HOME)/.ssh/ssh_configured_for_codecommit_$(ESTATE_ID)_$(COMPONENT)_$(ROLE)
 
 
 init: $(HOME)/.ssh/git_ssh.pub
@@ -45,12 +45,19 @@ $(SSH_CONFIGURED_FOR_CODECOMMIT): init
 	@echo "" >> $(HOME)/.ssh/config
 	touch $(SSH_CONFIGURED_FOR_CODECOMMIT)
 
-import: git-client add-upstream ## Import source code into CodeCommit
+import: git-client ./build/.git/config ## Import source code into CodeCommit
 
-add-upstream:
-	cd .. && git remote add codecommit $(GIT_CLONE_URL)
-	cd .. && git remote -v
-	cd .. && git push -u codecommit master
+copy-source:
+	rm -rf ./build
+	mkdir -p ./build
+	( cd ../ && tar --exclude=code-repository -cf - . ) | ( cd ./build && tar xf - )
+
+./build/.git/config: copy-source
+	cd ./build && git init
+	cd ./build && git add .
+	cd ./build && git commit -m "Importing source"
+	cd ./build && git remote add origin $(GIT_CLONE_URL)
+	cd ./build && git push -u origin master
 
 test: clean-test ## Test the infrastructure
 	cd ./test && ./check_git_repo.sh $(GIT_CLONE_URL)
@@ -71,7 +78,7 @@ clean: clean-test ## Clean local working files
 
 # TODO: This conflicts with the host & bastion ssh stuff
 distclean: clean
-	rm -rf ../infra/.git
+	rm -rf ./build
 	rm -f $(SSH_CONFIGURED_FOR_CODECOMMIT) ~/.ssh/config
 
 help:
