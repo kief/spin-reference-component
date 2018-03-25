@@ -1,26 +1,30 @@
 .DEFAULT_GOAL := help
 
-setup:  ## Setup each service project's source repo and pipelines
-	cd service-ororo && make setup
-	cd service-logan && make setup
+setup-delivery:  ## Setup each service project's source repo and pipelines
+	cd service-ororo && make setup-delivery
+	cd service-logan && make setup-delivery
 
-plan-setup: ## See what needs doing for the service projects' setup
-	cd service-ororo && make plan-setup
-	cd service-logan && make plan-setup
+plan-delivery: ## See what's involved in setting up the delivery infrastructure
+	cd service-ororo && make plan-delivery
+	cd service-logan && make plan-delivery
 
-plan: ## Plan all the services
+destroy-delivery: ## Destroy the source repos and pipelines, but not infrastructure
+	cd service-ororo && make destroy-delivery
+	cd service-logan && make destroy-delivery
+
+plan: ## Plan all the service infrastructure for a deployment collection
 	cd service-ororo && make plan
 	cd service-logan && make plan
 
-up: ## Bring up all the services
+up: ## Bring up all the service infrastructure for a deployment collection
 	cd service-ororo && make up
 	cd service-logan && make up
 
-destroy: ## Destroy all the services (only the relevant deployment collection)
+destroy: ## Destroy all the service infrastructure for a deployment collection
 	cd service-ororo && make destroy
 	cd service-logan && make destroy
 
-clean: ## Clean the service projects. Doesn't tear down infrastructure.
+clean: ## Clean local files
 	cd service-ororo && make clean
 	cd service-logan && make clean
 

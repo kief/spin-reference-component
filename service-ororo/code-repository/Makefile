@@ -83,11 +83,10 @@ run-destroy: init
 	cd ./src && terraform destroy -force $(TERRAFORM_VARS)
 
 clean: clean-test ## Clean local working files
-	rm -rf ./src/.terraform ./src/*tfstate*
+	rm -rf ./src/.terraform ./src/*tfstate* ./build
 
 # TODO: This conflicts with the host & bastion ssh stuff
 distclean: clean
-	rm -rf ./build
 	rm -f $(SSH_CONFIGURED_FOR_CODECOMMIT) ~/.ssh/config
 
 help:

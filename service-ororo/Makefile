@@ -3,9 +3,15 @@
 MY_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 include $(MY_DIR)/project-variables.mk
 
-setup: setup-code-repository new-repo setup-pipeline ## Create code repo and pipeline, and import the source
+setup-delivery: setup-code-repository new-repo setup-pipeline ## Setup each service project's source repo and pipelines
 
-plan-setup: plan-code-repository plan-pipeline ## See what needs doing
+plan-delivery: plan-code-repository plan-pipeline ## See what's involved in setting up the delivery infrastructure
+
+destroy-delivery: ## Destroy the source repos and pipelines, but not infrastructure
+	cd pipeline && make destroy
+	cd code-repository && make destroy
+	rm -rf infra/.git
+	@echo "WARNING: Instances of the infrastructure could still exist"
 
 build: bin/terraform ## Prepare the infrastructure code
 	cd infra && make prepare
@@ -53,14 +59,6 @@ setup-pipeline:
 
 plan-pipeline:
 	cd pipeline && make plan
-
-teardown: ## Destroys the project's source code and artefacts. Does not destroy instances of the environment!
-	# Could destroy the infra for every environment, but how?
-	# cd infra && make destroy
-	cd pipeline && make destroy
-	cd code-repository && make destroy
-	rm -rf infra/.git
-	@echo "WARNING: Instances of the infrastructure could still exist"
 
 local-clean:
 	rm -rf ./package ./.work ./bin
