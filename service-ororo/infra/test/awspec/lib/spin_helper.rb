@@ -5,7 +5,7 @@ def deployment_id
 end
 
 
-def deployment_id
+def role
   ROLE['ROLE']
 end
 
