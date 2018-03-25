@@ -3,8 +3,6 @@
 
 set -eu
 
-PIPELINE_NAME=simple_stack_pipeline
-
 exit_good()
 {
   echo "OK: $*"

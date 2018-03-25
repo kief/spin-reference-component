@@ -3,7 +3,7 @@
 MY_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 include $(MY_DIR)/project-variables.mk
 
-setup: setup-code-repository import-sourcode setup-pipeline ## Create code repo and pipeline, and import the source
+setup: setup-code-repository new-repo setup-pipeline ## Create code repo and pipeline, and import the source
 
 plan-setup: plan-code-repository plan-pipeline ## See what needs doing
 
