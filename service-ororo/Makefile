@@ -3,9 +3,11 @@
 MY_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 include $(MY_DIR)/project-variables.mk
 
-setup-delivery: setup-code-repository new-repo setup-pipeline ## Setup each service project's source repo and pipelines
-
 plan-delivery: plan-code-repository plan-pipeline ## See what's involved in setting up the delivery infrastructure
+
+setup-delivery: setup-code-repository setup-pipeline ## Setup each service project's source repo and pipelines
+
+load-delivery: import-sourcode ## Load source code into the service project repositories
 
 destroy-delivery: ## Destroy the source repos and pipelines, but not infrastructure
 	-cd pipeline && make destroy
@@ -52,13 +54,13 @@ plan-code-repository:
 	cd code-repository && make plan
 
 import-sourcode:
-	cd code-repository && make import
-
-setup-pipeline:
-	cd pipeline && make apply
+	cd code-repository && make new-repo
 
 plan-pipeline:
 	cd pipeline && make plan
+
+setup-pipeline:
+	cd pipeline && make apply
 
 local-clean:
 	rm -rf ./package ./.work ./bin

@@ -4,6 +4,10 @@ setup-delivery:  ## Setup each service project's source repo and pipelines
 	cd service-ororo && make setup-delivery
 	cd service-logan && make setup-delivery
 
+load-delivery:  ## Load source code into the service project repositories
+	cd service-ororo && make load-delivery
+	cd service-logan && make load-delivery
+
 plan-delivery: ## See what's involved in setting up the delivery infrastructure
 	cd service-ororo && make plan-delivery
 	cd service-logan && make plan-delivery
