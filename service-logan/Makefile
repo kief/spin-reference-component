@@ -7,7 +7,7 @@ plan-delivery: plan-code-repository plan-pipeline ## See what's involved in sett
 
 setup-delivery: setup-code-repository setup-pipeline ## Setup each service project's source repo and pipelines
 
-load-delivery: import-sourcode ## Load source code into the service project repositories
+load-delivery: load-new-repo ## Load source code into the service project repositories
 
 destroy-delivery: ## Destroy the source repos and pipelines, but not infrastructure
 	-cd pipeline && make destroy
@@ -35,16 +35,16 @@ package: local-clean build ## Create a versioned artefact
 		--exclude ./.work \
 		.
 
-plan:
+plan: ## Preview infrastructure changes to deployment $(DEPLOYMENT_ID)
 	cd infra && make plan
 
-up:
+up: ## Provision or update infrastructure for $(DEPLOYMENT_ID)
 	cd infra && make up
 
-test:
+test: ## Test infrastructure for $(DEPLOYMENT_ID)
 	cd infra && make test
 
-destroy:
+destroy: ## Destroy infrastructure for $(DEPLOYMENT_ID)
 	-cd infra && make destroy
 
 setup-code-repository:
@@ -53,9 +53,8 @@ setup-code-repository:
 plan-code-repository:
 	cd code-repository && make plan
 
-import-sourcode:
+load-new-repo:
 	cd code-repository && make new-repo
-
 
 plan-pipeline:
 	cd pipeline && make plan

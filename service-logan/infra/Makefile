@@ -75,7 +75,7 @@ up: init ## Create or update the stack
 test: awspec inspec ## Test the stack
 
 awspec: awspec-init
-	cd ./test/awspec && DEPLOYMENT_ID=$(DEPLOYMENT_ID) ROLE=$(ROLE) bundle exec rspec spec/*_spec.rb
+	cd ./test/awspec && DEPLOYMENT_ID=$(DEPLOYMENT_ID) COMPONENT=$(COMPONENT) ROLE=$(ROLE) bundle exec rspec spec/*_spec.rb
 
 awspec-init:
 	cd ./test/awspec && bundle install

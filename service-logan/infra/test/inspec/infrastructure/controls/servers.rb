@@ -7,13 +7,15 @@ component = attribute('component', description: 'Which component things should b
 role = attribute('role', description: 'Which role things should be tagged')
 
 describe aws_ec2_instances(state_name: 'running',
+      tag_value: "Component:#{component}",
+      tag_value: "Role:#{role}",
       tag_value: "DeploymentIdentifier:#{deployment_id}" ) do
   it { should have_instances }
   its('count') { should eq 2 }
   # TODO: can we say something like 'should_only include'?
   its('image_id') { should include 'ami-63b0341a' }
-  its('name') { should include "#{role}-#{deployment_id}" }
-  its('name') { should include "bastion-#{component}-#{deployment_id}" }
+  its('name') { should include "webserver-#{role}-#{component}-#{deployment_id}" }
+  its('name') { should include "bastion-#{role}-#{component}-#{deployment_id}" }
   # Redundant, but flags if I've botched the aws_ec2_instances code
   its('states') { should include 'running' }
 end
