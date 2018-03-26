@@ -11,7 +11,7 @@ resource "aws_instance" "webserver" {
     Name                  = "webserver-${var.role}-${var.component}-${var.deployment_id}"
     ServerRole            = "webserver"
     DeploymentIdentifier  = "${var.deployment_id}"
-    Role                  = "${var.role}"
+    Service               = "${var.role}"
     Component             = "${var.component}"
     Estate                = "${var.estate_id}"
   }

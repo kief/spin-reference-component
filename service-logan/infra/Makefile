@@ -26,7 +26,7 @@ else
   UPGRADE_MODULES=false
 endif
 
-SSH_CONFIGURED_FOR_BASTION=$(HOME)/.ssh/ssh_configured_for_bastion.$(DEPLOYMENT_ID).$(COMPONENT)
+SSH_CONFIGURED_FOR_SERVICE=$(HOME)/.ssh/ssh_configured_for_$(ROLE).$(COMPONENT).$(DEPLOYMENT_ID)
 BASTION_PUBLIC_DNS=$(shell cd ./src && $(TERRAFORM) output bastion_public_dns)
 WEBSERVER_HOSTNAME=$(shell cd ./src && $(TERRAFORM) output webserver_hostname)
 
@@ -82,7 +82,7 @@ awspec-init:
 
 inspec: inspec-infrastructure inspec-server-bastion inspec-server-webserver
 
-inspec-init:
+inspec-init: init
 	mkdir -p ./.work
 	echo "deployment_id : $(DEPLOYMENT_ID)" > ./.work/env-attributes.yml
 	echo "component : $(COMPONENT)" >> ./.work/env-attributes.yml
@@ -95,7 +95,7 @@ inspec-infrastructure: inspec-init
 		--reporter json-rspec:./.work/inspec-infrastructure.json cli \
 		--attrs ./.work/env-attributes.yml
 
-inspec-server-bastion: inspec-init $(SSH_CONFIGURED_FOR_BASTION)
+inspec-server-bastion: inspec-init $(SSH_CONFIGURED_FOR_SERVICE)
 	inspec exec \
 		test/inspec/server-bastion \
 		--host=$(BASTION_PUBLIC_DNS) \
@@ -105,7 +105,7 @@ inspec-server-bastion: inspec-init $(SSH_CONFIGURED_FOR_BASTION)
 		--reporter=json-rspec:./.work/inspec-server-bastion.json cli \
 		--attrs=./.work/env-attributes.yml
 
-inspec-server-webserver: inspec-init $(SSH_CONFIGURED_FOR_BASTION)
+inspec-server-webserver: inspec-init $(SSH_CONFIGURED_FOR_SERVICE)
 	inspec exec \
 		test/inspec/server-webserver \
 		--host=$(WEBSERVER_HOSTNAME) \
@@ -115,7 +115,7 @@ inspec-server-webserver: inspec-init $(SSH_CONFIGURED_FOR_BASTION)
 		--reporter=json-rspec:./.work/inspec-server-webserver.json cli \
 		--attrs=./.work/env-attributes.yml
 
-$(SSH_CONFIGURED_FOR_BASTION):
+$(SSH_CONFIGURED_FOR_SERVICE):
 	mkdir -p $(HOME)/.ssh
 	@echo "" >> $(HOME)/.ssh/config
 	@echo "# Automatically added by the $(COMPONENT) project" >> $(HOME)/.ssh/config
@@ -124,24 +124,18 @@ $(SSH_CONFIGURED_FOR_BASTION):
 	@echo "  StrictHostKeyChecking no" >> $(HOME)/.ssh/config
 	@echo "  UserKnownHostsFile=/dev/null" >> $(HOME)/.ssh/config
 	@echo "" >> $(HOME)/.ssh/config
-	@echo "Host $(DEPLOYMENT_ID)-bastion" >> $(HOME)/.ssh/config
+	@echo "Host bastion.$(ROLE).$(COMPONENT).$(DEPLOYMENT_ID)" >> $(HOME)/.ssh/config
 	@echo "  HostName $(BASTION_PUBLIC_DNS)" >> $(HOME)/.ssh/config
 	@echo "  User ubuntu" >> $(HOME)/.ssh/config
 	@echo "  IdentityFile $(shell pwd)/$(BASTION_KEYPAIR_FILE)" >> $(HOME)/.ssh/config
-	@echo "" >> $(HOME)/.ssh/config
-	@echo "Host *.$(DEPLOYMENT_ID).$(BASE_DNS_DOMAIN)" >> $(HOME)/.ssh/config
-	@echo "  User ubuntu" >> $(HOME)/.ssh/config
-	@echo "  IdentityFile $(shell pwd)/$(BASTION_KEYPAIR_FILE)" >> $(HOME)/.ssh/config
-	@echo "  ForwardAgent yes" >> $(HOME)/.ssh/config
-	@echo "  ProxyCommand ssh ubuntu@$(DEPLOYMENT_ID)-bastion -W %h:%p" >> $(HOME)/.ssh/config
 	@echo "" >> $(HOME)/.ssh/config
 	@echo "Host $(WEBSERVER_HOSTNAME)" >> $(HOME)/.ssh/config
 	@echo "  User ubuntu" >> $(HOME)/.ssh/config
 	@echo "  IdentityFile $(shell pwd)/$(WEBSERVER_KEYPAIR_FILE)" >> $(HOME)/.ssh/config
 	@echo "  ForwardAgent yes" >> $(HOME)/.ssh/config
-	@echo "  ProxyCommand ssh ubuntu@$(DEPLOYMENT_ID)-bastion -W %h:%p" >> $(HOME)/.ssh/config
+	@echo "  ProxyCommand ssh ubuntu@bastion.$(ROLE).$(COMPONENT).$(DEPLOYMENT_ID) -W %h:%p" >> $(HOME)/.ssh/config
 	@echo "" >> $(HOME)/.ssh/config
-	touch $(SSH_CONFIGURED_FOR_BASTION)
+	touch $(SSH_CONFIGURED_FOR_SERVICE)
 
 update-test-gems:
 	cd ./test && bundle update
@@ -160,7 +154,7 @@ clean: ## Clean the local working environment, leave the stack alone
 		./.work \
 		./package \
 		~/.ssh/config \
-		$(SSH_CONFIGURED_FOR_BASTION)
+		$(SSH_CONFIGURED_FOR_SERVICE)
 
 help:
 	@echo "Set DEPLOYMENT_ID= environment name instance. Defaults to \"$(DEPLOYMENT_ID)\""
