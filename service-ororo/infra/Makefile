@@ -41,9 +41,23 @@ $(BASTION_KEYPAIR_FILE):
 	mkdir -p .work
 	ssh-keygen -N '' -f $(BASTION_KEYPAIR_FILE) -b 4096
 
+bastion-fingerprint:
+	@echo "Fingerprint for local file $(BASTION_KEYPAIR_FILE):"
+	@openssl rsa -in $(BASTION_KEYPAIR_FILE) -pubout -outform DER | openssl md5 -c
+	@echo "Fingerprint for remote keypair bastion-$(ROLE)-$(COMPONENT)-$(DEPLOYMENT_ID):"
+	@aws ec2 describe-key-pairs --key-names bastion-$(ROLE)-$(COMPONENT)-$(DEPLOYMENT_ID) \
+		| jq -r '.KeyPairs | .[0] | .KeyFingerprint'
+
 $(WEBSERVER_KEYPAIR_FILE):
 	mkdir -p .work
 	ssh-keygen -N '' -f $(WEBSERVER_KEYPAIR_FILE) -b 4096
+
+webserver-fingerprint:
+	@echo "Local ssh key fingerprint:"
+	@openssl rsa -in $(WEBSERVER_KEYPAIR_FILE) -pubout -outform DER | openssl md5 -c
+	@echo "Remote ssh key fingerprint:"
+	@aws ec2 describe-key-pairs --key-names bastion-$(ROLE)-$(COMPONENT)-$(DEPLOYMENT_ID) \
+		| jq -r '.KeyPairs | .[0] | .KeyFingerprint'
 
 vars:
 	@echo "TERRAFORM_VARS=$(TERRAFORM_VARS)"

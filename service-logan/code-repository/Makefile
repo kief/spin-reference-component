@@ -13,9 +13,9 @@ TERRAFORM_VARS=\
 	-var "component=$(COMPONENT)" \
 	-var "role=$(ROLE)"
 
-GIT_CLONE_URL="$(shell cd ./src && terraform output git_ssh_url)"
-GIT_USERNAME="$(shell cd ./src && terraform output committer_ssh_id)"
-SSH_CONFIGURED_FOR_CODECOMMIT=$(HOME)/.ssh/ssh_configured_for_codecommit_$(ESTATE_ID)_$(COMPONENT)_$(ROLE)
+GIT_CLONE_URL=$(shell cd ./src && terraform output git_ssh_url)
+GIT_USERNAME=$(shell cd ./src && terraform output committer_ssh_id)
+SSH_CONFIGURED_FOR_CODECOMMIT=$(HOME)/.ssh/ssh_configured_for_codecommit_$(ROLE)-$(COMPONENT)
 
 
 init: $(HOME)/.ssh/git_ssh.pub
