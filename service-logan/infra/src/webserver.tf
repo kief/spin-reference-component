@@ -8,16 +8,16 @@ resource "aws_instance" "webserver" {
   key_name                = "${aws_key_pair.webserver.key_name}"
 
   tags {
-    Name                  = "webserver-${var.role}-${var.component}-${var.deployment_id}"
+    Name                  = "webserver-${var.service}-${var.component}-${var.deployment_id}"
     ServerRole            = "webserver"
     DeploymentIdentifier  = "${var.deployment_id}"
-    Service               = "${var.role}"
+    Service               = "${var.service}"
     Component             = "${var.component}"
     Estate                = "${var.estate_id}"
   }
 }
 
 resource "aws_key_pair" "webserver" {
-  key_name = "webserver-${var.role}-${var.component}-${var.deployment_id}"
+  key_name = "webserver-${var.service}-${var.component}-${var.deployment_id}"
   public_key = "${file(var.webserver_ssh_key_file)}"
 }

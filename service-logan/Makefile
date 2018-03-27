@@ -1,11 +1,12 @@
 .DEFAULT_GOAL := help
 
 MY_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-include $(MY_DIR)/project-variables.mk
+include $(MY_DIR)/service-configuration.mk
+include $(MY_DIR)/shared-variables.mk
 
 plan-delivery: plan-code-repository plan-pipeline ## See what's involved in setting up the delivery infrastructure
 
-setup-delivery: setup-code-repository setup-pipeline ## Setup each service project's source repo and pipelines
+apply-delivery: setup-code-repository setup-pipeline ## Setup each service project's source repo and pipelines
 
 load-delivery: load-new-repo ## Load source code into the service project repositories
 

@@ -4,18 +4,19 @@
 MY_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 FUNCTION=code-repository
 DEPLOYMENT_ID=delivery
-include $(MY_DIR)/../project-variables.mk
+include $(MY_DIR)/../service-configuration.mk
+include $(MY_DIR)/../shared-variables.mk
 
 TERRAFORM_VARS=\
 	-var "region=$(REGION)" \
 	-var "git_ssh_keyfile=$(HOME)/.ssh/git_ssh.pub" \
 	-var "estate_id=$(ESTATE_ID)" \
 	-var "component=$(COMPONENT)" \
-	-var "role=$(ROLE)"
+	-var "service=$(SERVICE)"
 
 GIT_CLONE_URL=$(shell cd ./src && terraform output git_ssh_url)
 GIT_USERNAME=$(shell cd ./src && terraform output committer_ssh_id)
-SSH_CONFIGURED_FOR_CODECOMMIT=$(HOME)/.ssh/ssh_configured_for_codecommit_$(ROLE)-$(COMPONENT)
+SSH_CONFIGURED_FOR_CODECOMMIT=$(HOME)/.ssh/ssh_configured_for_codecommit_$(SERVICE)-$(COMPONENT)
 
 
 init: $(HOME)/.ssh/git_ssh.pub
@@ -58,13 +59,14 @@ new-repo: git-client copy-source ./build/.git/config ## Import source code into 
 
 copy-source:
 	mkdir -p ./build
-	( cd ../ && tar --exclude=code-repository -cf - . ) | ( cd ./build && tar xf - )
+	( cd ../ && tar --exclude=code-repository --exclude=.git -cf - . ) | ( cd ./build && tar xf - )
 
 fresh-repo: git-client ## Wipe local build and clone whatever is in CodeCommit
 	rm -rf ./build
 	git clone $(GIT_CLONE_URL) build
 
 push-fresh: fresh-repo copy-source ## Push local source into CodeCommit
+	cd ./build && git add .
 	cd ./build && git commit -am "Ran make to bring in changes"
 	cd ./build && git push
 

@@ -4,7 +4,7 @@ title 'webserver infrastructure'
 
 deployment_id = attribute('deployment_id', default: 'unknown', description: 'Which deployment_id to inspect')
 component = attribute('component', description: 'Which component things should be tagged')
-service = attribute('role', description: 'Which service things should be tagged')
+service = attribute('service', description: 'Which service things should be tagged')
 
 describe aws_ec2_instance(name: "webserver-#{service}-#{component}-#{deployment_id}") do
   it { should be_running }

@@ -4,7 +4,7 @@ title 'servers'
 
 deployment_id = attribute('deployment_id', default: 'unknown', description: 'Which deployment_id to inspect')
 component = attribute('component', description: 'Which component things should be tagged')
-service = attribute('role', description: 'Which service things should be tagged as')
+service = attribute('service', description: 'Which service things should be tagged as')
 
 describe aws_ec2_instances(state_name: 'running',
       tag_values: [

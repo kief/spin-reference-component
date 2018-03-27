@@ -2,14 +2,14 @@
 
 MY_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 FUNCTION=infrastructure
-include $(MY_DIR)/../project-variables.mk
+include $(MY_DIR)/../service-configuration.mk
+include $(MY_DIR)/../shared-variables.mk
 
 TERRAFORM_VARS=\
-	-var "region=$(REGION)" \
 	-var "estate_id=$(ESTATE_ID)" \
 	-var "deployment_id=$(DEPLOYMENT_ID)" \
 	-var "component=$(COMPONENT)" \
-	-var "role=$(ROLE)" \
+	-var "service=$(SERVICE)" \
 	-var "base_dns_domain=$(BASE_DNS_DOMAIN)" \
 	-var "allowed_cidr=$(MY_IP)/32" \
 	-var "bastion_ssh_key_file=$(shell pwd)/$(BASTION_KEYPAIR_FILE).pub" \
@@ -26,7 +26,7 @@ else
   UPGRADE_MODULES=false
 endif
 
-SSH_CONFIGURED_FOR_SERVICE=$(HOME)/.ssh/ssh_configured_for_$(ROLE).$(COMPONENT).$(DEPLOYMENT_ID)
+SSH_CONFIGURED_FOR_SERVICE=$(HOME)/.ssh/ssh_configured_for_$(SERVICE).$(COMPONENT).$(DEPLOYMENT_ID)
 BASTION_PUBLIC_DNS=$(shell cd ./src && $(TERRAFORM) output bastion_public_dns)
 WEBSERVER_HOSTNAME=$(shell cd ./src && $(TERRAFORM) output webserver_hostname)
 
@@ -44,8 +44,8 @@ $(BASTION_KEYPAIR_FILE):
 bastion-fingerprint:
 	@echo "Fingerprint for local file $(BASTION_KEYPAIR_FILE):"
 	@openssl rsa -in $(BASTION_KEYPAIR_FILE) -pubout -outform DER | openssl md5 -c
-	@echo "Fingerprint for remote keypair bastion-$(ROLE)-$(COMPONENT)-$(DEPLOYMENT_ID):"
-	@aws ec2 describe-key-pairs --key-names bastion-$(ROLE)-$(COMPONENT)-$(DEPLOYMENT_ID) \
+	@echo "Fingerprint for remote keypair bastion-$(SERVICE)-$(COMPONENT)-$(DEPLOYMENT_ID):"
+	@aws ec2 describe-key-pairs --key-names bastion-$(SERVICE)-$(COMPONENT)-$(DEPLOYMENT_ID) \
 		| jq -r '.KeyPairs | .[0] | .KeyFingerprint'
 
 $(WEBSERVER_KEYPAIR_FILE):
@@ -56,7 +56,7 @@ webserver-fingerprint:
 	@echo "Local ssh key fingerprint:"
 	@openssl rsa -in $(WEBSERVER_KEYPAIR_FILE) -pubout -outform DER | openssl md5 -c
 	@echo "Remote ssh key fingerprint:"
-	@aws ec2 describe-key-pairs --key-names bastion-$(ROLE)-$(COMPONENT)-$(DEPLOYMENT_ID) \
+	@aws ec2 describe-key-pairs --key-names bastion-$(SERVICE)-$(COMPONENT)-$(DEPLOYMENT_ID) \
 		| jq -r '.KeyPairs | .[0] | .KeyFingerprint'
 
 vars:
@@ -89,7 +89,7 @@ up: init ## Create or update the stack
 test: awspec inspec ## Test the stack
 
 awspec: awspec-init
-	cd ./test/awspec && DEPLOYMENT_ID=$(DEPLOYMENT_ID) COMPONENT=$(COMPONENT) ROLE=$(ROLE) bundle exec rspec spec/*_spec.rb
+	cd ./test/awspec && DEPLOYMENT_ID=$(DEPLOYMENT_ID) COMPONENT=$(COMPONENT) SERVICE=$(SERVICE) bundle exec rspec spec/*_spec.rb
 
 awspec-init:
 	cd ./test/awspec && bundle install
@@ -100,7 +100,7 @@ inspec-init: init
 	mkdir -p ./.work
 	echo "deployment_id : $(DEPLOYMENT_ID)" > ./.work/env-attributes.yml
 	echo "component : $(COMPONENT)" >> ./.work/env-attributes.yml
-	echo "role : $(ROLE)" >> ./.work/env-attributes.yml
+	echo "service : $(SERVICE)" >> ./.work/env-attributes.yml
 
 inspec-infrastructure: inspec-init
 	inspec exec \
@@ -138,7 +138,7 @@ $(SSH_CONFIGURED_FOR_SERVICE):
 	@echo "  StrictHostKeyChecking no" >> $(HOME)/.ssh/config
 	@echo "  UserKnownHostsFile=/dev/null" >> $(HOME)/.ssh/config
 	@echo "" >> $(HOME)/.ssh/config
-	@echo "Host bastion.$(ROLE).$(COMPONENT).$(DEPLOYMENT_ID)" >> $(HOME)/.ssh/config
+	@echo "Host bastion.$(SERVICE).$(COMPONENT).$(DEPLOYMENT_ID)" >> $(HOME)/.ssh/config
 	@echo "  HostName $(BASTION_PUBLIC_DNS)" >> $(HOME)/.ssh/config
 	@echo "  User ubuntu" >> $(HOME)/.ssh/config
 	@echo "  IdentityFile $(shell pwd)/$(BASTION_KEYPAIR_FILE)" >> $(HOME)/.ssh/config
@@ -147,7 +147,7 @@ $(SSH_CONFIGURED_FOR_SERVICE):
 	@echo "  User ubuntu" >> $(HOME)/.ssh/config
 	@echo "  IdentityFile $(shell pwd)/$(WEBSERVER_KEYPAIR_FILE)" >> $(HOME)/.ssh/config
 	@echo "  ForwardAgent yes" >> $(HOME)/.ssh/config
-	@echo "  ProxyCommand ssh ubuntu@bastion.$(ROLE).$(COMPONENT).$(DEPLOYMENT_ID) -W %h:%p" >> $(HOME)/.ssh/config
+	@echo "  ProxyCommand ssh ubuntu@bastion.$(SERVICE).$(COMPONENT).$(DEPLOYMENT_ID) -W %h:%p" >> $(HOME)/.ssh/config
 	@echo "" >> $(HOME)/.ssh/config
 	touch $(SSH_CONFIGURED_FOR_SERVICE)
 
