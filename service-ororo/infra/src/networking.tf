@@ -6,7 +6,7 @@ module "base-network" {
   region                    = "${var.region}"
   availability_zones        = "${var.availability_zones}"
   
-  component                 = "${var.role}-${var.component}"
+  component                 = "${var.component}"
   deployment_identifier     = "${var.deployment_id}"
   
   include_lifecycle_events  = "no"

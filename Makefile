@@ -24,6 +24,10 @@ up: ## Bring up all the service infrastructure for a deployment collection
 	cd service-ororo && make up
 	cd service-logan && make up
 
+test: ## Test the service infrastructure for a deployment collection
+	cd service-ororo && make test
+	cd service-logan && make test
+
 destroy: ## Destroy all the service infrastructure for a deployment collection
 	cd service-ororo && make destroy
 	cd service-logan && make destroy

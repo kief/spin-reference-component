@@ -4,8 +4,8 @@ def deployment_id
   ENV['DEPLOYMENT_ID']
 end
 
-def role
-  ENV['ROLE']
+def service
+  ENV['SERVICE']
 end
 
 def component
